@@ -60,27 +60,33 @@ function setKeyboardListener() {
   });
 }
 
+/** ロケットの動き設定
+ * キャンバスの中のみ移動可能にする */
 function update() {
   // 右側制限値
   let limit_Right = canvas.width - spaceshipImg.width;
+  // 下段制限値
+  let limit_Bottom = canvas.height - spaceshipImg.height;
 
   if (K_RIGHT in keysDown) {
-    // キャンバスの中のみ移動可能にする
     spaceshipX >= limit_Right
       ? (spaceshipX = limit_Right)
       : (spaceshipX += spaceshipSpeed);
   }
 
   if (K_LEFT in keysDown) {
-    // キャンバスの中のみ移動可能にする
     spaceshipX <= 0 ? (spaceshipX = 0) : (spaceshipX -= spaceshipSpeed);
   }
 
   if (K_UP in keysDown) {
-    spaceshipY -= spaceshipSpeed;
+    // spaceshipY -= spaceshipSpeed;
+    spaceshipY <= 0 ? (spaceshipY = 0) : (spaceshipY -= spaceshipSpeed);
   }
+
   if (K_DOWN in keysDown) {
-    spaceshipY += spaceshipSpeed;
+    spaceshipY >= limit_Bottom
+      ? (spaceshipY = limit_Bottom)
+      : (spaceshipY += spaceshipSpeed);
   }
 }
 
