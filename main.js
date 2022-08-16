@@ -7,6 +7,7 @@ const K_RIGHT = 39;
 const K_LEFT = 37;
 const K_UP = 38;
 const K_DOWN = 40;
+const K_SPACE = 32;
 
 canvas = document.createElement("canvas");
 ctx = canvas.getContext("2d");
@@ -24,6 +25,24 @@ let spaceshipX = canvas.width / 2 - 29;
 let spaceshipY = canvas.height - 65;
 // ロケットの速度
 let spaceshipSpeed = 5;
+
+// 球の配列
+let bulletList = [];
+// 球の差表
+function Bullet() {
+  this.x = 0;
+  this.y = 0;
+  this.init = function () {
+    this.x = spaceshipX + 17.5;
+    this.y = spaceshipY;
+
+    bulletList.push(this);
+  };
+
+  this.update = function () {
+    this.y -= 7;
+  };
+}
 
 // イメージ設定
 function loadImage() {
@@ -44,8 +63,14 @@ function loadImage() {
 }
 
 function render() {
+  // 背景
   ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+  // ロケット
   ctx.drawImage(spaceshipImg, spaceshipX, spaceshipY);
+  // 球のイメージ表示
+  for (let i = 0; i < bulletList.length; i++) {
+    ctx.drawImage(bulletImg, bulletList[i].x, bulletList[i].y);
+  }
 }
 
 let keysDown = {};
@@ -57,6 +82,10 @@ function setKeyboardListener() {
   // 押下された後キーボードの値削除
   document.addEventListener("keyup", function (e) {
     delete keysDown[e.keyCode];
+
+    if (e.keyCode == K_SPACE) {
+      createBullet();
+    }
   });
 }
 
@@ -88,12 +117,24 @@ function update() {
       ? (spaceshipY = limit_Bottom)
       : (spaceshipY += spaceshipSpeed);
   }
+
+  // 球のY座標更新
+  for (let i = 0; i < bulletList.length; i++) {
+    bulletList[i].update();
+  }
 }
 
 function main() {
   update(); // 差表の更新
   render(); // 画面表示
   requestAnimationFrame(main);
+}
+
+// 球の生成
+function createBullet() {
+  console.log("test");
+  let bullet = new Bullet();
+  bullet.init();
 }
 
 loadImage();
