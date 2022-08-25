@@ -16,6 +16,8 @@ let enemy_speed = 2;
 
 // ゲーム終了
 let gameover = false;
+// 点数
+let score = 0;
 
 canvas = document.createElement("canvas");
 ctx = canvas.getContext("2d");
@@ -43,12 +45,29 @@ function Bullet() {
   this.init = function () {
     this.x = spaceshipX + 17.5;
     this.y = spaceshipY;
+    // 球の生命
+    this.alive = true;
 
     bulletList.push(this);
   };
 
   this.update = function () {
     this.y -= bullet_speed;
+  };
+
+  this.checkHit = () => {
+    for (let i = 0; i < enemyList.length; i++) {
+      if (
+        this.y <= enemyList[i].y &&
+        this.x >= enemyList[i].x &&
+        this.x <= enemyList[i].x + enemyImg.width
+      ) {
+        score++;
+        this.alive = false;
+        // 敵の削除
+        enemyList.splice(i, 1);
+      }
+    }
   };
 }
 
@@ -109,9 +128,15 @@ function render() {
   ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
   // ロケット
   ctx.drawImage(spaceshipImg, spaceshipX, spaceshipY);
+  // 点数表示
+  ctx.fillText(`Score : ${score}`, 20, 20);
+  ctx.fillStyle = "white";
+  ctx.font = "20px";
   // 球のイメージ表示
   for (let i = 0; i < bulletList.length; i++) {
-    ctx.drawImage(bulletImg, bulletList[i].x, bulletList[i].y);
+    bulletList[i].alive
+      ? ctx.drawImage(bulletImg, bulletList[i].x, bulletList[i].y)
+      : null;
   }
   // 敵のイメージ表示
   for (let i = 0; i < enemyList.length; i++) {
@@ -164,9 +189,13 @@ function update() {
       : (spaceshipY += spaceshipSpeed);
   }
 
-  // 球のY座標更新
+  // 球のY座標更新、敵の的中確認
   for (let i = 0; i < bulletList.length; i++) {
-    bulletList[i].update();
+    // 球が生きてるか確認
+    if (bulletList[i].alive) {
+      bulletList[i].update();
+      bulletList[i].checkHit();
+    }
   }
 
   // 敵のY座標更新
