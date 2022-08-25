@@ -9,6 +9,14 @@ const K_UP = 38;
 const K_DOWN = 40;
 const K_SPACE = 32;
 
+// 球のスピード
+let bullet_speed = 7;
+// 敵のスピード
+let enemy_speed = 2;
+
+// ゲーム終了
+let gameover = false;
+
 canvas = document.createElement("canvas");
 ctx = canvas.getContext("2d");
 
@@ -40,8 +48,42 @@ function Bullet() {
   };
 
   this.update = function () {
-    this.y -= 7;
+    this.y -= bullet_speed;
   };
+}
+
+// 敵の配列
+let enemyList = [];
+// 敵の差表
+function Enemy() {
+  this.x = 0;
+  this.y = 0;
+  this.init = function () {
+    this.x = generateRandomValue(0, canvas.width - enemyImg.width);
+    this.y = 0;
+
+    enemyList.push(this);
+  };
+
+  this.update = function () {
+    this.y += enemy_speed;
+
+    if (this.y >= canvas.height - enemyImg.height) {
+      gameover = true;
+      console.log("");
+    }
+  };
+}
+// 敵のx差表設定
+function generateRandomValue(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+// 敵の生成タイミング
+function createEnemy() {
+  const interval = setInterval(() => {
+    let e = new Enemy();
+    e.init();
+  }, 1000);
 }
 
 // イメージ設定
@@ -70,6 +112,10 @@ function render() {
   // 球のイメージ表示
   for (let i = 0; i < bulletList.length; i++) {
     ctx.drawImage(bulletImg, bulletList[i].x, bulletList[i].y);
+  }
+  // 敵のイメージ表示
+  for (let i = 0; i < enemyList.length; i++) {
+    ctx.drawImage(enemyImg, enemyList[i].x, enemyList[i].y);
   }
 }
 
@@ -122,21 +168,30 @@ function update() {
   for (let i = 0; i < bulletList.length; i++) {
     bulletList[i].update();
   }
+
+  // 敵のY座標更新
+  for (let i = 0; i < enemyList.length; i++) {
+    enemyList[i].update();
+  }
 }
 
 function main() {
-  update(); // 差表の更新
-  render(); // 画面表示
-  requestAnimationFrame(main);
+  if (!gameover) {
+    update(); // 差表の更新
+    render(); // 画面表示
+    requestAnimationFrame(main);
+  } else {
+    ctx.drawImage(gameOerImg, 10, 100, 380, 380);
+  }
 }
 
 // 球の生成
 function createBullet() {
-  console.log("test");
   let bullet = new Bullet();
   bullet.init();
 }
 
 loadImage();
 setKeyboardListener();
+createEnemy();
 main();
